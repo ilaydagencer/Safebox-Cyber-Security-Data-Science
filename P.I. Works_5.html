@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management Screen</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
+    <style>
+        .container {
+            display: flex;
+        }
+        .table-container {
+            flex: 1;
+            margin-right: 20px;
+        }
+        .form-container {
+            flex: 1;
+            position: relative;
+        }
+        
+        .table thead th {
+            background-color: #007bff;
+            color: white;
+        }
+        .button.is-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: white;
+        }
+        
+        .save-button {
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="container mt-5">
+        <div class="table-container">
+            
+
+            
+            <div class="field is-grouped">
+                <div class="control">
+                    <button class="button is-primary" @click="newUserForm">New User</button>
+                </div>
+                <div class="control">
+                    <input type="checkbox" v-model="hideDisabled" id="hideDisabled">
+                    <label for="hideDisabled">Hide Disabled Users</label>
+                </div>
+              
+            </div>
+
+            
+            <table class="table is-fullwidth is-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User Name</th>
+                        <th>Email</th>
+                        <th>Enabled</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="user in filteredUsers" :key="user.id" @click="selectUser(user)">
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.enabled ? 'true' : 'false' }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="form-container">
+            
+            <button class="button is-primary save-button" @click="saveUser">Save User</button>
+
+            <div class="box mt-6">
+                <h2 class="subtitle">New User</h2>
+                <div class="field">
+                    <label class="label">Username</label>
+                    <div class="control">
+                        <input class="input" type="text" v-model="newUser.username" placeholder="Enter Username" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Display Name</label>
+                    <div class="control">
+                        <input class="input" type="text" v-model="newUser.displayName" placeholder="Enter Display Name">
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Phone</label>
+                    <div class="control">
+                        <input class="input" type="text" v-model="newUser.phone" placeholder="Enter Phone Number">
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Email</label>
+                    <div class="control">
+                        <input class="input" type="email" v-model="newUser.email" placeholder="Enter Email" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">User Roles</label>
+                    <div class="control">
+                        <div class="select">
+                            <select v-model="newUser.role">
+                                <option>Guest</option>
+                                <option>Admin</option>
+                                <option>SuperAdmin</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="checkbox">
+                        <input type="checkbox" v-model="newUser.enabled"> Enabled
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                hideDisabled: true,
+                users: [
+                    { id: 1, username: 'AdminUser', email: 'admin@piworks.net', enabled: true },
+                    { id: 2, username: 'Test User', email: 'testuser@piworks.net', enabled: true },
+                ],
+                newUser: {
+                    id: null,
+                    username: '',
+                    displayName: '',
+                    phone: '',
+                    email: '',
+                    role: 'Guest',
+                    enabled: false
+                },
+                selectedUser: null
+            },
+            computed: {
+                filteredUsers() {
+                    return this.hideDisabled ? this.users.filter(user => user.enabled) : this.users;
+                }
+            },
+            methods: {
+                newUserForm() {
+                    this.newUser = { id: null, username: '', displayName: '', phone: '', email: '', role: 'Guest', enabled: false };
+                    this.selectedUser = null;
+                },
+                selectUser(user) {
+                    this.selectedUser = user;
+                    this.newUser = { ...user };
+                },
+                saveUser() {
+                    if (!this.newUser.username || !this.newUser.email) {
+                        alert("Username and Email are required.");
+                        return;
+                    }
+                    if (this.selectedUser) {
+                        
+                        Object.assign(this.selectedUser, this.newUser);
+                    } else {
+                        
+                        this.newUser.id = this.users.length + 1;
+                        this.users.push({ ...this.newUser });
+                    }
+                  
+                    this.newUser = { username: '', displayName: '', phone: '', email: '', role: 'Guest', enabled: false };
+                    this.selectedUser = null;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
